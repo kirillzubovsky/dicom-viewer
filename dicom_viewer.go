@@ -55,6 +55,55 @@ func (c *contrastImage) At(x, y int) color.Color {
 	}
 }
 
+type pannableImage struct {
+	widget.BaseWidget
+	image     *canvas.Image
+	panOffset fyne.Position
+	startPos  fyne.Position
+	isPanning bool
+}
+
+func newPannableImage(img image.Image) *pannableImage {
+	p := &pannableImage{
+		image: canvas.NewImageFromImage(img),
+	}
+	p.image.FillMode = canvas.ImageFillContain
+	p.image.SetMinSize(fyne.NewSize(512, 512))
+	p.ExtendBaseWidget(p)
+	return p
+}
+
+func (p *pannableImage) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer(p.image)
+}
+
+func (p *pannableImage) Tapped(ev *fyne.PointEvent) {
+	// Handle tap events if needed
+}
+
+func (p *pannableImage) TappedSecondary(ev *fyne.PointEvent) {
+	// Handle secondary tap events if needed
+}
+
+func (p *pannableImage) Dragged(ev *fyne.DragEvent) {
+	if !p.isPanning {
+		p.isPanning = true
+		p.startPos = ev.PointEvent.Position
+	}
+
+	dx := ev.PointEvent.Position.X - p.startPos.X
+	dy := ev.PointEvent.Position.Y - p.startPos.Y
+
+	p.panOffset = fyne.NewPos(p.panOffset.X+dx, p.panOffset.Y+dy)
+	p.startPos = ev.PointEvent.Position
+
+	p.Refresh()
+}
+
+func (p *pannableImage) DragEnd() {
+	p.isPanning = false
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run dicom_viewer.go <path_to_dicom_directory>")
@@ -88,9 +137,7 @@ func main() {
 	loadingIndicator.Hide()
 
 	// Image display
-	imgCanvas := canvas.NewImageFromImage(seriesList[currentSeriesIndex].frames[currentFrameIndex])
-	imgCanvas.FillMode = canvas.ImageFillContain
-	imgCanvas.SetMinSize(fyne.NewSize(512, 512))
+	imgCanvas := newPannableImage(seriesList[currentSeriesIndex].frames[currentFrameIndex])
 
 	// Metadata label
 	metadata := getMetadataFromMap(seriesList[currentSeriesIndex].metadata)
@@ -181,19 +228,19 @@ func main() {
 	// Zoom controls
 	zoomInBtn := widget.NewButton("Zoom In", func() {
 		zoomLevel += 0.2
-		imgCanvas.SetMinSize(fyne.NewSize(float32(512)*zoomLevel, float32(512)*zoomLevel))
+		imgCanvas.image.SetMinSize(fyne.NewSize(float32(512)*zoomLevel, float32(512)*zoomLevel))
 		imgCanvas.Refresh()
 	})
 	zoomOutBtn := widget.NewButton("Zoom Out", func() {
 		if zoomLevel > 0.2 {
 			zoomLevel -= 0.2
-			imgCanvas.SetMinSize(fyne.NewSize(float32(512)*zoomLevel, float32(512)*zoomLevel))
+			imgCanvas.image.SetMinSize(fyne.NewSize(float32(512)*zoomLevel, float32(512)*zoomLevel))
 			imgCanvas.Refresh()
 		}
 	})
 	resetZoomBtn := widget.NewButton("Reset Zoom", func() {
 		zoomLevel = 1.0
-		imgCanvas.SetMinSize(fyne.NewSize(512, 512))
+		imgCanvas.image.SetMinSize(fyne.NewSize(512, 512))
 		imgCanvas.Refresh()
 	})
 
@@ -548,13 +595,13 @@ func getMetadataFromMap(metadata map[string]string) string {
 	return result
 }
 
-func updateDisplay(imgCanvas *canvas.Image, metaLabel, frameLabel *widget.Label, seriesList []dicomSeries, seriesIdx, frameIdx int, contrast float64) {
+func updateDisplay(imgCanvas *pannableImage, metaLabel, frameLabel *widget.Label, seriesList []dicomSeries, seriesIdx, frameIdx int, contrast float64) {
 	// Apply contrast to the image
 	contrastImg := &contrastImage{
 		Image:    seriesList[seriesIdx].frames[frameIdx],
 		contrast: contrast,
 	}
-	imgCanvas.Image = contrastImg
+	imgCanvas.image.Image = contrastImg
 	metaLabel.SetText(getMetadataFromMap(seriesList[seriesIdx].metadata))
 	frameLabel.SetText(fmt.Sprintf("Frame %d/%d", frameIdx+1, len(seriesList[seriesIdx].frames)))
 	imgCanvas.Refresh()
