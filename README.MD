@@ -1,4 +1,4 @@
-Below is a `README.md` file that encapsulates all the instructions, explanations, and usage details for the DICOM viewer script we’ve developed. This file is written in Markdown format, making it easy to read on platforms like GitHub or in a text editor. It includes everything someone would need to set up, run, and use the viewer for their own DICOM files, along with troubleshooting tips and potential next steps.
+Below is a `README.md` file that encapsulates all the instructions, explanations, and usage details for the DICOM (Digital Imaging and Communications in Medicine) viewer script we’ve developed. This file is written in Markdown format, making it easy to read on platforms like GitHub or in a text editor. It includes everything someone would need to set up, run, and use the viewer for their own DICOM files, along with troubleshooting tips and potential next steps.
 
 ---
 

@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -100,21 +102,34 @@ func main() {
 	for i, series := range seriesList {
 		seriesNames[i] = filepath.Base(series.seriesPath)
 	}
+
+	// Sort series names numerically
+	sort.Slice(seriesNames, func(i, j int) bool {
+		// Extract numbers from series names (e.g., "SE000001" -> "000001")
+		numI := strings.TrimPrefix(seriesNames[i], "SE")
+		numJ := strings.TrimPrefix(seriesNames[j], "SE")
+		return numI < numJ
+	})
+
+	// Create a map to find the original index for each series name
+	seriesIndexMap := make(map[string]int)
+	for i, series := range seriesList {
+		seriesIndexMap[filepath.Base(series.seriesPath)] = i
+	}
+
 	seriesSelector := widget.NewSelect(seriesNames, func(selected string) {
 		loadingIndicator.Show()
 		loadingIndicator.SetText("Loading series...")
 		w.Canvas().Refresh(w.Content())
 
 		go func() {
-			for i, name := range seriesNames {
-				if name == selected {
-					currentSeriesIndex = i
-					currentFrameIndex = 0
-					updateDisplay(imgCanvas, metaLabel, frameLabel, seriesList, currentSeriesIndex, currentFrameIndex, contrastLevel)
-					time.Sleep(100 * time.Millisecond) // Small delay for visual feedback
-					loadingIndicator.Hide()
-					break
-				}
+			// Find the original index for the selected series
+			if originalIndex, ok := seriesIndexMap[selected]; ok {
+				currentSeriesIndex = originalIndex
+				currentFrameIndex = 0
+				updateDisplay(imgCanvas, metaLabel, frameLabel, seriesList, currentSeriesIndex, currentFrameIndex, contrastLevel)
+				time.Sleep(100 * time.Millisecond) // Small delay for visual feedback
+				loadingIndicator.Hide()
 			}
 		}()
 	})
@@ -356,6 +371,56 @@ func extractFramesFromDICOM(filePath string) ([]image.Image, map[string]string, 
 		metadata["Dimensions"] = fmt.Sprintf("%d x %d", rows.Value, cols.Value)
 	}
 
+	// Extract orientation information
+	orientation, _ := dataset.FindElementByTag(tag.ImageOrientationPatient)
+	if orientation != nil {
+		orientationValues, ok := orientation.Value.GetValue().([]string)
+		if ok && len(orientationValues) >= 6 {
+			// Convert string values to float64
+			values := make([]float64, len(orientationValues))
+			for i, v := range orientationValues {
+				if f, err := strconv.ParseFloat(v, 64); err == nil {
+					values[i] = f
+				}
+			}
+
+			// Calculate orientation based on the direction cosines
+			// First row (x): values[0:3]
+			// Second row (y): values[3:6]
+			// Third row (z): cross product of first two rows
+			zX := values[1]*values[5] - values[2]*values[4]
+			zY := values[2]*values[3] - values[0]*values[5]
+			zZ := values[0]*values[4] - values[1]*values[3]
+
+			// Determine the plane based on the dominant component
+			absX := abs(zX)
+			absY := abs(zY)
+			absZ := abs(zZ)
+
+			if absX > absY && absX > absZ {
+				metadata["Orientation"] = "Sagittal"
+			} else if absY > absX && absY > absZ {
+				metadata["Orientation"] = "Coronal"
+			} else if absZ > absX && absZ > absY {
+				metadata["Orientation"] = "Axial"
+			} else {
+				metadata["Orientation"] = "Unknown"
+			}
+		} else {
+			log.Printf("Invalid orientation values format or insufficient values")
+			metadata["Orientation"] = "Unknown"
+		}
+	} else {
+		log.Printf("No orientation information found")
+		metadata["Orientation"] = "Unknown"
+	}
+
+	// Extract series description
+	seriesDesc, _ := dataset.FindElementByTag(tag.SeriesDescription)
+	if seriesDesc != nil {
+		metadata["SeriesDescription"] = seriesDesc.Value.String()
+	}
+
 	// Extract frames
 	pixelDataElement, err := dataset.FindElementByTag(tag.PixelData)
 	if err != nil {
@@ -385,6 +450,13 @@ func extractFramesFromDICOM(filePath string) ([]image.Image, map[string]string, 
 	return frames, metadata, nil
 }
 
+func abs(x float64) float64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
 func getMetadataFromMap(metadata map[string]string) string {
 	result := "--- DICOM Metadata ---\n"
 	if val, ok := metadata["PatientName"]; ok {
@@ -397,7 +469,13 @@ func getMetadataFromMap(metadata map[string]string) string {
 		result += fmt.Sprintf("Modality: %s\n", val)
 	}
 	if val, ok := metadata["Dimensions"]; ok {
-		result += fmt.Sprintf("Image Dimensions: %s", val)
+		result += fmt.Sprintf("Image Dimensions: %s\n", val)
+	}
+	if val, ok := metadata["Orientation"]; ok {
+		result += fmt.Sprintf("Orientation: %s\n", val)
+	}
+	if val, ok := metadata["SeriesDescription"]; ok {
+		result += fmt.Sprintf("Series Description: %s", val)
 	}
 	return result
 }
