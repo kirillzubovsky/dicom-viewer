@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/png"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 
@@ -195,6 +197,60 @@ func main() {
 		imgCanvas.Refresh()
 	})
 
+	// Export button
+	exportBtn := widget.NewButton("Export Series", func() {
+		// Show directory picker dialog
+		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			if uri == nil {
+				return
+			}
+
+			// Create series directory
+			seriesDir := filepath.Join(uri.Path(), fmt.Sprintf("series_%s", filepath.Base(seriesList[currentSeriesIndex].seriesPath)))
+			if err := os.MkdirAll(seriesDir, 0755); err != nil {
+				dialog.ShowError(fmt.Errorf("failed to create directory: %v", err), w)
+				return
+			}
+
+			// Export metadata
+			metadata := getMetadataFromMap(seriesList[currentSeriesIndex].metadata)
+			if err := os.WriteFile(filepath.Join(seriesDir, "metadata.txt"), []byte(metadata), 0644); err != nil {
+				dialog.ShowError(fmt.Errorf("failed to write metadata: %v", err), w)
+				return
+			}
+
+			// Export images
+			for i, img := range seriesList[currentSeriesIndex].frames {
+				// Create filename with frame number
+				filename := fmt.Sprintf("frame_%03d.png", i+1)
+				filepath := filepath.Join(seriesDir, filename)
+
+				// Create file
+				f, err := os.Create(filepath)
+				if err != nil {
+					dialog.ShowError(fmt.Errorf("failed to create file %s: %v", filename, err), w)
+					continue
+				}
+
+				// Encode and save image
+				if err := png.Encode(f, img); err != nil {
+					f.Close()
+					dialog.ShowError(fmt.Errorf("failed to encode image %s: %v", filename, err), w)
+					continue
+				}
+				f.Close()
+			}
+
+			dialog.ShowInformation("Export Complete",
+				fmt.Sprintf("Series exported to:\n%s\n\n%d images exported", seriesDir, len(seriesList[currentSeriesIndex].frames)),
+				w)
+		}, w)
+	})
+
 	// Layout
 	controls := container.NewGridWithColumns(3,
 		prevFrameBtn, nextFrameBtn, playBtn,
@@ -217,6 +273,7 @@ func main() {
 		controls,
 		zoomControls,
 		contrastControls,
+		exportBtn,
 	)
 
 	w.SetContent(container.New(layout.NewCenterLayout(), content))
