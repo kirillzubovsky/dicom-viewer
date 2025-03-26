@@ -218,12 +218,14 @@ func main() {
 
 			// Export metadata
 			metadata := getMetadataFromMap(seriesList[currentSeriesIndex].metadata)
+			// Add contrast setting to metadata
+			metadata += fmt.Sprintf("\nContrast Setting: %d", int(contrastLevel))
 			if err := os.WriteFile(filepath.Join(seriesDir, "metadata.txt"), []byte(metadata), 0644); err != nil {
 				dialog.ShowError(fmt.Errorf("failed to write metadata: %v", err), w)
 				return
 			}
 
-			// Export images
+			// Export images with current contrast setting
 			for i, img := range seriesList[currentSeriesIndex].frames {
 				// Create filename with frame number
 				filename := fmt.Sprintf("frame_%03d.png", i+1)
@@ -236,8 +238,14 @@ func main() {
 					continue
 				}
 
-				// Encode and save image
-				if err := png.Encode(f, img); err != nil {
+				// Apply contrast to the image
+				contrastImg := &contrastImage{
+					Image:    img,
+					contrast: contrastLevel,
+				}
+
+				// Encode and save image with contrast applied
+				if err := png.Encode(f, contrastImg); err != nil {
 					f.Close()
 					dialog.ShowError(fmt.Errorf("failed to encode image %s: %v", filename, err), w)
 					continue
@@ -246,7 +254,10 @@ func main() {
 			}
 
 			dialog.ShowInformation("Export Complete",
-				fmt.Sprintf("Series exported to:\n%s\n\n%d images exported", seriesDir, len(seriesList[currentSeriesIndex].frames)),
+				fmt.Sprintf("Series exported to:\n%s\n\n%d images exported\nContrast setting: %d",
+					seriesDir,
+					len(seriesList[currentSeriesIndex].frames),
+					int(contrastLevel)),
 				w)
 		}, w)
 	})
