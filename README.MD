@@ -1,10 +1,14 @@
-Below is a `README.md` file that encapsulates all the instructions, explanations, and usage details for the DICOM (Digital Imaging and Communications in Medicine) viewer script we've developed. This file is written in Markdown format, making it easy to read on platforms like GitHub or in a text editor. It includes everything someone would need to set up, run, and use the viewer for their own DICOM files, along with troubleshooting tips and potential next steps.
+I fell while skiing and damanged my knee. Infuriated by the experience of reading my MRI results, I quickly built a DicomViewer with the help of Cursor and Grok. You can read about the experienec on [Novice.Media](https://novice.media). The app is not perfect, just like the rest of us. I hope that the next tech person that needs to see their MRI would be to use it, maybe fix bugs or contribute their features. Reach out on [X](https://x.com/kirillzubovsky) if you would like to talk about it.
+
+---
+
+Below is a `README.md` file that encapsulates all the instructions, explanations, and usage details for the DICOM (Digital Imaging and Communications in Medicine) viewer script . This file includes everything someone would need to set up, run, and use the viewer for their own DICOM files, along with troubleshooting tips and potential next steps.
 
 ---
 
 # DICOM Viewer in Go
 
-A powerful, local DICOM viewer written in Go that allows you to visualize DICOM files, including multi-frame sequences. The viewer supports advanced features like zoom, pan, contrast adjustment, frame navigation, and series selection. Built for medical professionals and researchers who need a lightweight, fast DICOM viewer.
+A powerful, local DICOM viewer written in Go that allows you to visualize DICOM files, including multi-frame sequences. The viewer supports zoom, pan, contrast adjustment, frame navigation, and series selection. Built for anyone with a computer who wants to load some DICOM files and view them, without the need to dowload any professional software, or to register for an account. The tool is lightweight and fast. No frills, yet.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Go Version](https://img.shields.io/badge/go-%3E%3D1.16-blue)
@@ -30,6 +34,7 @@ You only need:
 - A Unix-like system (macOS, Linux)
 - Basic terminal access
 - DICOM files to view
+- (Theoretically it will work on Windows too, but I don't have one, haven't tried)
 
 ### Setup Steps
 1. Download both files to your computer:
