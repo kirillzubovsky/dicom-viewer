@@ -118,26 +118,19 @@ check_system_deps() {
     print_success "System dependencies are installed"
 }
 
-# Function to set up the project
-setup_project() {
+# Function to set up the build environment
+setup_build() {
     # Store the original path
     ORIGINAL_PATH="$PWD"
     
-    # Create project directory if it doesn't exist
-    if [ ! -d "dicom_viewer" ]; then
-        print_status "Creating project directory..."
-        mkdir -p dicom_viewer
-    fi
+    # Create build directory
+    print_status "Creating build directory..."
+    mkdir -p build
+    cd build
     
-    # Copy dicom_viewer.go to the project directory if it exists in current directory
-    if [ -f "dicom_viewer.go" ]; then
-        cp dicom_viewer.go dicom_viewer/
-    elif [ ! -f "dicom_viewer/dicom_viewer.go" ]; then
-        print_error "dicom_viewer.go not found in current directory or project directory"
-        exit 1
-    fi
-    
-    cd dicom_viewer
+    # Copy source file to build directory
+    print_status "Copying source files..."
+    cp ../dicom_viewer.go .
     
     # Initialize Go module if it doesn't exist
     if [ ! -f "go.mod" ]; then
@@ -174,7 +167,7 @@ setup_project() {
     go mod tidy
     
     cd "$ORIGINAL_PATH"
-    print_success "Project setup complete"
+    print_success "Build environment setup complete"
 }
 
 # Function to check if DICOM files exist in the specified directory
@@ -206,11 +199,12 @@ check_dicom_files() {
 # Function to build and run the viewer
 run_viewer() {
     local dicom_path="$1"
-    cd dicom_viewer || exit 1
+    cd build || exit 1
     
     print_status "Building DICOM viewer..."
     if ! go build -o viewer dicom_viewer.go; then
         print_error "Build failed. Please check the error messages above"
+        cd ..
         exit 1
     fi
     
@@ -219,7 +213,20 @@ run_viewer() {
     
     # Run the viewer with the specified DICOM directory
     ./viewer "$dicom_path"
+    
+    # Return to original directory
+    cd ..
 }
+
+# Function to clean up build artifacts
+cleanup() {
+    print_status "Cleaning up build artifacts..."
+    rm -rf build
+    print_success "Cleanup complete"
+}
+
+# Set up trap to catch script termination
+trap cleanup EXIT
 
 # Main execution
 echo -e "${BOLD}DICOM Viewer Setup and Launch Script${NC}\n"
@@ -242,11 +249,12 @@ fi
 print_status "Checking system requirements..."
 check_go
 check_system_deps
-setup_project
+setup_build
 
 # Check DICOM files
 if ! check_dicom_files "$DICOM_PATH"; then
     print_status "Proceeding anyway as the viewer has its own file validation..."
 fi
 
+# Run the viewer
 run_viewer "$DICOM_PATH" 
