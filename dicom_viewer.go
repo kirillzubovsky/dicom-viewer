@@ -61,11 +61,13 @@ type pannableImage struct {
 	panOffset fyne.Position
 	startPos  fyne.Position
 	isPanning bool
+	zoomLevel float32
 }
 
 func newPannableImage(img image.Image) *pannableImage {
 	p := &pannableImage{
-		image: canvas.NewImageFromImage(img),
+		image:     canvas.NewImageFromImage(img),
+		zoomLevel: 1.0,
 	}
 	p.image.FillMode = canvas.ImageFillContain
 	p.image.SetMinSize(fyne.NewSize(512, 512))
@@ -104,6 +106,14 @@ func (p *pannableImage) DragEnd() {
 	p.isPanning = false
 }
 
+func (p *pannableImage) SetZoom(zoom float32) {
+	p.zoomLevel = zoom
+	baseSize := float32(512)
+	newSize := baseSize * zoom
+	p.image.SetMinSize(fyne.NewSize(newSize, newSize))
+	p.Refresh()
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run dicom_viewer.go <path_to_dicom_directory>")
@@ -125,6 +135,7 @@ func main() {
 	myApp := app.New()
 	w := myApp.NewWindow("DICOM Viewer")
 	w.Resize(fyne.NewSize(800, 700))
+	w.SetFixedSize(true) // This prevents window resizing
 
 	// State variables
 	currentSeriesIndex := 0
@@ -138,6 +149,7 @@ func main() {
 
 	// Image display
 	imgCanvas := newPannableImage(seriesList[currentSeriesIndex].frames[currentFrameIndex])
+	imgContainer := container.NewHBox(layout.NewSpacer(), imgCanvas, layout.NewSpacer())
 
 	// Metadata label
 	metadata := getMetadataFromMap(seriesList[currentSeriesIndex].metadata)
@@ -185,12 +197,20 @@ func main() {
 	seriesSelector.SetSelected(seriesNames[0])
 
 	// Contrast slider
-	contrastSlider := widget.NewSlider(-100, 100)
+	contrastSlider := widget.NewSlider(-255, 255)
+	contrastLabel := widget.NewLabel("Contrast: 0")
+
+	contrastControls := container.NewVBox(
+		container.NewHBox(layout.NewSpacer(), widget.NewLabel("Contrast:"), layout.NewSpacer()),
+		container.NewHBox(layout.NewSpacer(), contrastSlider, layout.NewSpacer()),
+		container.NewHBox(layout.NewSpacer(), contrastLabel, layout.NewSpacer()),
+	)
+
 	contrastSlider.OnChanged = func(value float64) {
 		contrastLevel = value
+		contrastLabel.SetText(fmt.Sprintf("Contrast: %d", int(value)))
 		updateDisplay(imgCanvas, metaLabel, frameLabel, seriesList, currentSeriesIndex, currentFrameIndex, contrastLevel)
 	}
-	contrastLabel := widget.NewLabel("Contrast: 0")
 
 	// Auto-play for multi-frame
 	playing := false
@@ -228,14 +248,12 @@ func main() {
 	// Zoom controls
 	zoomInBtn := widget.NewButton("Zoom In", func() {
 		zoomLevel += 0.2
-		imgCanvas.image.SetMinSize(fyne.NewSize(float32(512)*zoomLevel, float32(512)*zoomLevel))
-		imgCanvas.Refresh()
+		imgCanvas.SetZoom(zoomLevel)
 	})
 	zoomOutBtn := widget.NewButton("Zoom Out", func() {
 		if zoomLevel > 0.2 {
 			zoomLevel -= 0.2
-			imgCanvas.image.SetMinSize(fyne.NewSize(float32(512)*zoomLevel, float32(512)*zoomLevel))
-			imgCanvas.Refresh()
+			imgCanvas.SetZoom(zoomLevel)
 		}
 	})
 	resetZoomBtn := widget.NewButton("Reset Zoom", func() {
@@ -316,25 +334,20 @@ func main() {
 	zoomControls := container.NewGridWithColumns(3,
 		zoomInBtn, zoomOutBtn, resetZoomBtn,
 	)
-	contrastControls := container.NewHBox(
-		widget.NewLabel("Contrast:"),
-		contrastSlider,
-		contrastLabel,
-	)
 	content := container.NewVBox(
 		widget.NewLabel("Select Series:"),
 		seriesSelector,
 		loadingIndicator,
 		metaLabel,
 		frameLabel,
-		imgCanvas,
+		imgContainer,
 		controls,
 		zoomControls,
 		contrastControls,
 		exportBtn,
 	)
 
-	w.SetContent(container.New(layout.NewCenterLayout(), content))
+	w.SetContent(content)
 	w.ShowAndRun()
 }
 
