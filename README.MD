@@ -4,176 +4,247 @@ Below is a `README.md` file that encapsulates all the instructions, explanations
 
 # DICOM Viewer in Go
 
-A simple, local DICOM viewer written in Go that allows you to visualize DICOM files, including multi-frame sequences, with features like zoom, frame navigation, and series selection. The viewer is designed to work with standard DICOM directory structures and supports basic metadata display.
+A powerful, local DICOM viewer written in Go that allows you to visualize DICOM files, including multi-frame sequences. The viewer supports advanced features like zoom, pan, contrast adjustment, frame navigation, and series selection. Built for medical professionals and researchers who need a lightweight, fast DICOM viewer.
 
-## Understanding DICOM Imaging
+## Quick Start
+The easiest way to get started is using our automated setup script:
 
-### What is DICOM?
-DICOM (Digital Imaging and Communications in Medicine) is the standard format for medical imaging data, used across various modalities like X-rays, CT scans, MRIs, and ultrasounds. Each DICOM file contains both image data and metadata about the image.
+1. Download both `start.sh` and `dicom_viewer.go` to your computer
+2. Make the script executable:
+   ```bash
+   chmod +x start.sh
+   ```
+3. Run the script with your DICOM directory:
+   ```bash
+   ./start.sh /path/to/dicom_files
+   ```
 
-### How DICOM Images Are Acquired
-1. **Imaging Modality**
-   - CT Scanner: Uses X-rays to create detailed cross-sectional images
-   - MRI: Uses magnetic fields and radio waves to image soft tissues
-   - X-ray: Produces 2D images using X-rays
-   - Ultrasound: Uses sound waves to image soft tissues
+The script will:
+- Check and install all required dependencies
+- Set up the project automatically
+- Validate your DICOM files
+- Build and launch the viewer
 
-2. **Image Generation**
-   - Raw data is captured by the imaging device
-   - Data is processed to reconstruct images
-   - Multiple "series" of images are often produced in a single session
+The script provides color-coded output to help you understand what's happening:
+- 🔵 Blue: Information about current operations
+- 🟢 Green: Successful steps
+- 🟡 Yellow: Warnings that need attention
+- 🔴 Red: Errors that need to be fixed
 
-3. **DICOM File Structure**
-   - Hierarchical organization:
-     - Patient (PAxxxxxx)
-     - Study (STxxxxxx)
-     - Series (SExxxxxx)
-     - Image (IMxxxxxx)
-   - Each file contains:
-     - Patient information
-     - Study details
-     - Series information
-     - Image data
-     - Technical parameters
+### Directory Structure
+The viewer expects your DICOM files to be organized in this structure:
+```
+dicom_files/
+└── DICOM/
+    └── PAxxxxxx/
+        └── STxxxxxx/
+            └── SExxxxxx/
+                ├── image1.dcm
+                ├── image2.dcm
+                └── ...
+```
 
-### Understanding Image Orientation
-DICOM images can be acquired in different anatomical planes:
-- **Axial**: Top-down slices (like cutting a loaf of bread horizontally)
-- **Coronal**: Front-to-back slices (like slicing the bread vertically from the front)
-- **Sagittal**: Side-to-side slices (like slicing the bread vertically from the side)
+You can use either:
+- Relative path: `./start.sh ./dicom_files`
+- Absolute path: `./start.sh /full/path/to/dicom_files`
+
+### Troubleshooting the Script
+If you encounter issues:
+
+1. **Directory not found**:
+   - Make sure you're in the correct directory
+   - Check if the path to DICOM files is correct
+   - Try using the absolute path
+
+2. **Permission errors**:
+   - Make sure the script is executable: `chmod +x start.sh`
+   - For system package installation: run with `sudo` if prompted
+
+3. **Build errors**:
+   - Check Go installation: `go version`
+   - Ensure all dependencies are installed
+   - Look for red error messages in the output
+
+### Supported Operating Systems
+The automated setup script supports:
+- macOS (via Homebrew)
+- Ubuntu/Debian
+- Fedora
+- Arch Linux
+
+For other systems, follow the manual installation instructions below.
 
 ## Features
 - **DICOM File Parsing**: Reads DICOM files and extracts metadata and pixel data
-- **Multi-Frame Support**: Handles multi-frame DICOM files with "Play" functionality
+- **Multi-Frame Support**: Handles multi-frame DICOM files with frame-by-frame navigation
 - **Series Grouping**: Groups images by series using DICOMDIR or directory structure
-- **Zoom Functionality**: Zoom in, zoom out, and reset zoom levels
-- **Contrast Adjustment**: Adjust image contrast for better visualization
-- **Simple GUI**: Built with the `fyne` library for cross-platform compatibility
-- **Metadata Display**: Shows key metadata for each series
-- **Orientation Information**: Displays the anatomical plane of the images
+- **Advanced Image Controls**:
+  - Zoom: Zoom in/out with maintained aspect ratio
+  - Pan: Click and drag to pan around zoomed images
+  - Contrast Adjustment: Fine-tune image contrast with a wide-range slider
+  - Frame Navigation: Step through frames or use auto-play functionality
+- **Metadata Display**: Shows comprehensive metadata including:
+  - Patient information
+  - Study details
+  - Image dimensions
+  - Anatomical orientation
+  - Series description
+- **Export Functionality**: Export series to PNG format with:
+  - Current contrast settings preserved
+  - Complete metadata in text format
+  - Sequential frame numbering
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## Prerequisites
 1. **Go**: Version 1.16 or later
-2. **DICOM Files**: A set of DICOM files organized in a standard directory structure
-3. **Terminal Access**: A terminal or command prompt to run commands
+2. **Required Libraries**: 
+   - For Windows: GCC compiler (via MinGW or MSYS2)
+   - For Ubuntu/Debian: `sudo apt-get install gcc libgl1-mesa-dev xorg-dev`
+   - For macOS: Xcode Command Line Tools (`xcode-select --install`)
+3. **DICOM Files**: A set of DICOM files organized in a standard directory structure
 
-## Installation
+## Manual Installation
+If you prefer to install manually or the automated script doesn't work for your system, follow these steps:
 
 ### Step 1: Install Go
-- Download Go from [golang.org/dl/](https://golang.org/dl/)
-- Verify installation:
-  ```bash
-  go version
-  ```
-
-### Step 2: Set Up the Project
-1. Create a directory:
+1. Download Go from [golang.org/dl/](https://golang.org/dl/)
+2. Follow the installation instructions for your operating system
+3. Verify installation:
    ```bash
-   mkdir dicom_viewer_project
-   cd dicom_viewer_project
+   go version
    ```
-2. Save the `dicom_viewer.go` script in this directory
 
-### Step 3: Install Dependencies
-1. Initialize Go module:
+### Step 2: Install System Dependencies
+
+#### Windows:
+1. Install MSYS2 from [msys2.org](https://www.msys2.org/)
+2. Open MSYS2 terminal and run:
+   ```bash
+   pacman -S mingw-w64-x86_64-gcc
+   ```
+3. Add MinGW-w64 bin directory to your PATH
+
+#### macOS:
+```bash
+xcode-select --install
+```
+
+#### Ubuntu/Debian:
+```bash
+sudo apt-get update
+sudo apt-get install gcc libgl1-mesa-dev xorg-dev
+```
+
+### Step 3: Set Up the Project
+1. Create a project directory:
+   ```bash
+   mkdir dicom_viewer
+   cd dicom_viewer
+   ```
+
+2. Initialize Go module:
    ```bash
    go mod init dicom_viewer
    ```
-2. Install required libraries:
+
+3. Create `dicom_viewer.go` and copy the source code into it
+
+4. Install dependencies:
    ```bash
    go get github.com/suyashkumar/dicom
    go get fyne.io/fyne/v2
    ```
 
-### Step 4: Prepare Your DICOM Files
-Ensure your DICOM files are in a standard directory structure:
-```
-/path/to/dicom_data/
-├── DICOM/
-│   └── PAxxxxxx/
-│       └── STxxxxxx/
-│           ├── SExxxxxx/
-│           │   ├── IMxxxxxx
-│           │   ├── IMxxxxxx
-│           │   └── ...
-│           └── ...
-├── DICOMDIR
-└── ...
-```
+## Running the Viewer
 
-### Step 5: Run the Viewer
-```bash
-go run dicom_viewer.go /path/to/dicom_data
-```
+1. Basic usage:
+   ```bash
+   go run dicom_viewer.go /path/to/dicom_files
+   ```
 
-## Usage
+2. Building an executable:
+   ```bash
+   go build dicom_viewer.go
+   ```
+   Then run:
+   - Windows: `dicom_viewer.exe path\to\dicom_files`
+   - macOS/Linux: `./dicom_viewer /path/to/dicom_files`
 
-### Basic Navigation
-- **Series Selection**: Use the dropdown to switch between different series
+## DICOM Directory Structure
+The viewer expects one of these directory structures:
+
+1. With DICOMDIR:
+   ```
+   dicom_files/
+   └── DICOM/
+       └── PAxxxxxx/
+           └── STxxxxxx/
+               └── SExxxxxx/
+                   ├── IMxxxxxx
+                   └── ...
+   ```
+
+## Using the Viewer
+
+### Navigation
+- **Series Selection**: Use dropdown at top to switch between series
 - **Frame Navigation**: 
-  - Use "Prev Frame" / "Next Frame" to move through slices
-  - Use "Play" / "Pause" to auto-cycle through frames
-- **Zoom Controls**:
-  - "Zoom In" / "Zoom Out" to adjust image size
-  - "Reset Zoom" to return to default size
+  - "Prev Frame"/"Next Frame" buttons
+  - "Play" button for automatic frame cycling
+  - Frame counter shows current position
 
-### Image Adjustment
-- **Contrast Slider**: Adjust image contrast for better visualization
-- **Metadata Display**: Shows information about the current series
+### Image Controls
+- **Zoom**:
+  - "Zoom In": Increase image size
+  - "Zoom Out": Decrease image size
+  - "Reset Zoom": Return to original size
+  - Click and drag to pan when zoomed in
+- **Contrast**:
+  - Slider adjusts image contrast
+  - Range: -255 to +255
+  - Current contrast value displayed
 
-### Understanding the Interface
-1. **Series Selection**
-   - Lists all available series
-   - Each series represents a different view or imaging technique
-   - Series are sorted numerically for easy navigation
-
-2. **Frame Navigation**
-   - Each frame represents a slice through the body
-   - Use frame navigation to "travel" through the body
-   - Play mode helps visualize the 3D structure
-
-3. **Metadata Display**
-   - Shows patient information
-   - Displays study details
-   - Shows image dimensions
-   - Indicates the anatomical orientation
-
-## Technical Details
-
-### DICOM File Processing
-1. **DICOMDIR Parsing**
-   - Attempts to parse DICOMDIR for series organization
-   - Falls back to directory traversal if needed
-
-2. **Series Grouping**
-   - Groups images by series directory
-   - Maintains proper frame order
-
-3. **Image Display**
-   - Supports multi-frame DICOM files
-   - Handles different image orientations
-   - Provides contrast adjustment
-
-### Metadata Extraction
-The viewer extracts and displays:
-- Patient information
-- Study details
-- Series information
-- Image dimensions
-- Anatomical orientation
+### Export
+1. Click "Export Series" button
+2. Select destination folder
+3. Creates:
+   - Directory named `series_SExxxxxx`
+   - PNG files for each frame with current contrast
+   - `metadata.txt` with series information
 
 ## Troubleshooting
-- **No Series Found**: Check directory structure and file permissions
-- **DICOMDIR Issues**: Viewer falls back to directory traversal
-- **Performance**: Large series may load slowly
-- **Zoom Issues**: Adjust minimum size if needed
+
+### Common Issues
+1. **Window System Error** (Linux):
+   ```bash
+   sudo apt-get install libgl1-mesa-dev xorg-dev
+   ```
+
+2. **Compilation Error** (Windows):
+   - Ensure MinGW-w64 is properly installed
+   - Check PATH includes MinGW-w64 bin directory
+
+3. **No Series Found**:
+   - Check directory structure
+   - Verify file permissions
+   - Ensure files are valid DICOM format
+
+4. **Performance Issues**:
+   - Large series may load slowly
+   - Consider reducing frame rate in auto-play
+   - Close other memory-intensive applications
+
+### Error Messages
+- "No valid DICOM series found": Check directory structure and file formats
+- "Failed to parse DICOM file": File may be corrupted or in unsupported format
+- "No frames found in pixel data": DICOM file may not contain image data
 
 ## License
-This project is provided as-is, with no warranty. You are free to use, modify, and distribute it under the MIT License.
+This project is provided under the MIT License. You are free to use, modify, and distribute it.
 
 ## Acknowledgments
-- Built with `github.com/suyashkumar/dicom` for DICOM parsing
-- Uses `fyne.io/fyne/v2` for the cross-platform GUI
+- Built with [github.com/suyashkumar/dicom](https://github.com/suyashkumar/dicom) for DICOM parsing
+- Uses [fyne.io/fyne/v2](https://fyne.io/) for cross-platform GUI
 
 ---
 
