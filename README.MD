@@ -6,73 +6,94 @@ Below is a `README.md` file that encapsulates all the instructions, explanations
 
 A powerful, local DICOM viewer written in Go that allows you to visualize DICOM files, including multi-frame sequences. The viewer supports advanced features like zoom, pan, contrast adjustment, frame navigation, and series selection. Built for medical professionals and researchers who need a lightweight, fast DICOM viewer.
 
-## Quick Start
-The easiest way to get started is using our automated setup script:
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Go Version](https://img.shields.io/badge/go-%3E%3D1.16-blue)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
 
-1. Download both `start.sh` and `dicom_viewer.go` to your computer
+## Table of Contents
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Code of Conduct](#code-of-conduct)
+- [Security](#security)
+- [Acknowledgments](#acknowledgments)
+
+## Quick Start
+The easiest way to get started is using our automated setup script. The script handles all dependencies, building, and launching the viewer.
+
+### Prerequisites
+You only need:
+- A Unix-like system (macOS, Linux)
+- Basic terminal access
+- DICOM files to view
+
+### Setup Steps
+1. Download both files to your computer:
+   - `start.sh`: The setup script
+   - `dicom_viewer.go`: The viewer source code
+
 2. Make the script executable:
    ```bash
    chmod +x start.sh
    ```
+
 3. Run the script with your DICOM directory:
    ```bash
    ./start.sh /path/to/dicom_files
    ```
 
-The script will:
-- Check and install all required dependencies
-- Set up the project automatically
-- Validate your DICOM files
-- Build and launch the viewer
+### What the Script Does
+The script automatically:
+1. Checks your system requirements
+2. Installs Go if not present (using your system's package manager)
+3. Installs all necessary dependencies
+4. Sets up the project structure
+5. Validates your DICOM files
+6. Builds and launches the viewer
 
-The script provides color-coded output to help you understand what's happening:
-- 🔵 Blue: Information about current operations
-- 🟢 Green: Successful steps
-- 🟡 Yellow: Warnings that need attention
-- 🔴 Red: Errors that need to be fixed
+### Understanding the Output
+The script uses color-coded messages to keep you informed:
+- Blue [INFO]: Normal progress information
+- Green [SUCCESS]: Completed steps
+- Yellow [WARNING]: Non-critical issues
+- Red [ERROR]: Critical issues that need attention
 
-### Directory Structure
-The viewer expects your DICOM files to be organized in this structure:
-```
-dicom_files/
-└── DICOM/
-    └── PAxxxxxx/
-        └── STxxxxxx/
-            └── SExxxxxx/
-                ├── image1.dcm
-                ├── image2.dcm
-                └── ...
-```
+### Supported Systems
+The automated setup works on:
+- macOS (using Homebrew)
+- Ubuntu/Debian (using apt)
+- Fedora (using dnf)
+- Arch Linux (using pacman)
 
-You can use either:
-- Relative path: `./start.sh ./dicom_files`
-- Absolute path: `./start.sh /full/path/to/dicom_files`
+For other systems, follow the manual installation below.
 
 ### Troubleshooting the Script
 If you encounter issues:
 
-1. **Directory not found**:
-   - Make sure you're in the correct directory
-   - Check if the path to DICOM files is correct
-   - Try using the absolute path
+1. **Path Issues**:
+   ```bash
+   # Try using absolute path
+   ./start.sh $(pwd)/dicom_files
+   ```
 
-2. **Permission errors**:
-   - Make sure the script is executable: `chmod +x start.sh`
-   - For system package installation: run with `sudo` if prompted
+2. **Permission Issues**:
+   ```bash
+   # Make sure script is executable
+   chmod +x start.sh
+   # For system packages
+   sudo ./start.sh /path/to/dicom_files
+   ```
 
-3. **Build errors**:
-   - Check Go installation: `go version`
-   - Ensure all dependencies are installed
-   - Look for red error messages in the output
-
-### Supported Operating Systems
-The automated setup script supports:
-- macOS (via Homebrew)
-- Ubuntu/Debian
-- Fedora
-- Arch Linux
-
-For other systems, follow the manual installation instructions below.
+3. **Build Issues**:
+   ```bash
+   # Clean and retry
+   rm -rf dicom_viewer/
+   ./start.sh /path/to/dicom_files
+   ```
 
 ## Features
 - **DICOM File Parsing**: Reads DICOM files and extracts metadata and pixel data
@@ -273,3 +294,82 @@ However, since the script is quite long, it's often better to keep it in a separ
 3. Share the repository or the files with others, and they can follow the instructions in the README to set up and use the viewer.
 
 Let me know if you'd like to adjust the README further or add more details!
+
+## Contributing
+We welcome contributions! Here's how you can help:
+
+### Getting Started
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+### Development Setup
+```bash
+# Clone your fork
+git clone https://github.com/yourusername/dicom-viewer.git
+cd dicom-viewer
+
+# Install dependencies
+go mod download
+
+# Run tests
+go test ./...
+```
+
+### Guidelines
+- Follow Go coding standards and conventions
+- Add tests for new features
+- Update documentation as needed
+- Keep pull requests focused and atomic
+- Write meaningful commit messages
+
+## Security
+### Reporting Security Issues
+Please report security issues to [your-email@example.com] privately. Do NOT create public issues for security vulnerabilities.
+
+### Data Privacy
+This viewer:
+- Processes DICOM files locally only
+- Does not transmit any data
+- Does not store or cache patient information
+- Allows anonymization of DICOM data (planned feature)
+
+## Code of Conduct
+We follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) Code of Conduct. By participating, you are expected to uphold this code.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### Third-party Licenses
+- [github.com/suyashkumar/dicom](https://github.com/suyashkumar/dicom) - MIT License
+- [fyne.io/fyne/v2](https://github.com/fyne-io/fyne) - BSD 3-Clause License
+
+## Versioning
+We use [SemVer](http://semver.org/) for versioning. For available versions, see the [tags on this repository](https://github.com/yourusername/dicom-viewer/tags).
+
+## Roadmap
+Planned features and improvements:
+- [ ] DICOM data anonymization
+- [ ] Support for more DICOM formats
+- [ ] Advanced visualization tools
+- [ ] Measurement tools
+- [ ] DICOM network protocol support
+- [ ] Plugin system for extensions
+
+## Support
+- Create an issue for bug reports or feature requests
+- Join our [Discord/Slack] community (coming soon)
+- Check out the [Wiki](https://github.com/yourusername/dicom-viewer/wiki) for detailed documentation
+
+## Citation
+If you use this software in your research, please cite it as:
+```bibtex
+@software{dicom_viewer_go,
+  author = {Your Name},
+  title = {DICOM Viewer in Go},
+  year = {2024},
+  url = {https://github.com/yourusername/dicom-viewer}
+}
+```
