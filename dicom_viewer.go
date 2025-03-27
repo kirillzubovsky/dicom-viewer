@@ -134,7 +134,7 @@ func main() {
 	// Initialize Fyne app
 	myApp := app.New()
 	w := myApp.NewWindow("DICOM Viewer")
-	w.Resize(fyne.NewSize(800, 700))
+	w.Resize(fyne.NewSize(1400, 900))
 	w.SetFixedSize(true) // This prevents window resizing
 
 	// State variables
@@ -196,15 +196,19 @@ func main() {
 	})
 	seriesSelector.SetSelected(seriesNames[0])
 
-	// Contrast slider
+	// Create contrast controls with fixed width
 	contrastSlider := widget.NewSlider(-255, 255)
 	contrastLabel := widget.NewLabel("Contrast: 0")
+	contrastSlider.Step = 1
+	contrastSlider.SetValue(0)
 
-	contrastControls := container.NewVBox(
-		container.NewHBox(layout.NewSpacer(), widget.NewLabel("Contrast:"), layout.NewSpacer()),
-		container.NewHBox(layout.NewSpacer(), contrastSlider, layout.NewSpacer()),
-		container.NewHBox(layout.NewSpacer(), contrastLabel, layout.NewSpacer()),
+	// Create a fixed-width container for the contrast controls
+	contrastContainer := container.New(layout.NewVBoxLayout(),
+		widget.NewLabel("Contrast:"),
+		contrastSlider,
+		contrastLabel,
 	)
+	contrastContainer.Resize(fyne.NewSize(600, 80))
 
 	contrastSlider.OnChanged = func(value float64) {
 		contrastLevel = value
@@ -327,7 +331,7 @@ func main() {
 		}, w)
 	})
 
-	// Layout
+	// Layout with all controls in grid format for better organization
 	controls := container.NewGridWithColumns(3,
 		prevFrameBtn, nextFrameBtn, playBtn,
 	)
@@ -343,7 +347,7 @@ func main() {
 		imgContainer,
 		controls,
 		zoomControls,
-		contrastControls,
+		contrastContainer,
 		exportBtn,
 	)
 
