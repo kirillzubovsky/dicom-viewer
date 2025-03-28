@@ -326,6 +326,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Planned features and improvements:
 - [ ] Fix remaining bugs with zoom/pan and window resizing
 - [ ] Stich 2D images into a 3D visualization
+- [ ] Put a 3D model of a human body next to the MRI images, and allow humans to visualize their images in context of their body. It would make it easier to understand orientation of an object.
 - [ ] You choose..
 
 ## Support
