@@ -37,9 +37,14 @@ You only need:
 - (Theoretically it will work on Windows too, but I don't have one, haven't tried)
 
 ### Setup Steps
-1. Download both files to your computer:
-   - `start.sh`: The setup script
-   - `dicom_viewer.go`: The viewer source code
+1. Get the code:
+   ```bash
+   # Either clone the repository
+   git clone https://github.com/kirillzubovsky/dicom-viewer.git
+   cd dicom-viewer
+   
+   # Or download as ZIP from GitHub and extract it
+   ```
 
 2. Make the script executable:
    ```bash
@@ -50,9 +55,10 @@ You only need:
    ```bash
    ./start.sh /path/to/dicom_files
    ```
+   Here I am assuming that just like me you were handed a CD with a DICOM recotry on, which you can copy on your machine. If that's not the case, you can read through the 'DICOM Directory Structure' section and see how to adjust the code for your needs.
 
 ### What the Script Does
-The script automatically:
+The `start.sh` script is something I've been creating for all my projects. It just makes it easier to pick up a file on any machine and have it running without going through too many debug cycles. This particular script automatically:
 1. Checks your system requirements
 2. Installs Go if not present (using your system's package manager)
 3. Installs all necessary dependencies
@@ -121,7 +127,7 @@ If you encounter issues:
   - Sequential frame numbering
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
-## Prerequisites
+## Prerequisites (as of March 27, 2025)
 1. **Go**: Version 1.16 or later
 2. **Required Libraries**: 
    - For Windows: GCC compiler (via MinGW or MSYS2)
@@ -274,31 +280,6 @@ This project is provided under the MIT License. You are free to use, modify, and
 
 ---
 
-### Including the Script in the README
-If you're hosting this in a repository, you can include the `dicom_viewer.go` script directly in the repository and reference it in the README. For this README, I've assumed the script is available separately. If you'd like to include the script inline in the README, you can add it under a section like:
-
-```markdown
-## Source Code
-Below is the full source code for `dicom_viewer.go`:
-
-```go
-[Insert the script here]
-```
-```
-
-However, since the script is quite long, it's often better to keep it in a separate file in the repository.
-
-### How to Use the README
-1. Save the above content as `README.md` in your project directory (`dicom_viewer_project`).
-2. If you're using a version control system like Git, add both `dicom_viewer.go` and `README.md` to your repository:
-   ```bash
-   git init
-   git add dicom_viewer.go README.md
-   git commit -m "Initial commit with DICOM viewer and README"
-   ```
-3. Share the repository or the files with others, and they can follow the instructions in the README to set up and use the viewer.
-
-Let me know if you'd like to adjust the README further or add more details!
 
 ## Contributing
 We welcome contributions! Here's how you can help:
@@ -310,18 +291,6 @@ We welcome contributions! Here's how you can help:
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
-### Development Setup
-```bash
-# Clone your fork
-git clone https://github.com/yourusername/dicom-viewer.git
-cd dicom-viewer
-
-# Install dependencies
-go mod download
-
-# Run tests
-go test ./...
-```
 
 ### Guidelines
 - Follow Go coding standards and conventions
@@ -332,17 +301,16 @@ go test ./...
 
 ## Security
 ### Reporting Security Issues
-Please report security issues to [your-email@example.com] privately. Do NOT create public issues for security vulnerabilities.
+Please report security issues to [me](https://kirillzubovsky.com) privately. Ideally though, just make a pull request and fix them. This is a hobby.
 
 ### Data Privacy
 This viewer:
 - Processes DICOM files locally only
 - Does not transmit any data
 - Does not store or cache patient information
-- Allows anonymization of DICOM data (planned feature)
 
 ## Code of Conduct
-We follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) Code of Conduct. By participating, you are expected to uphold this code.
+Don't be a jerk.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -351,30 +319,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [github.com/suyashkumar/dicom](https://github.com/suyashkumar/dicom) - MIT License
 - [fyne.io/fyne/v2](https://github.com/fyne-io/fyne) - BSD 3-Clause License
 
-## Versioning
-We use [SemVer](http://semver.org/) for versioning. For available versions, see the [tags on this repository](https://github.com/yourusername/dicom-viewer/tags).
 
 ## Roadmap
 Planned features and improvements:
-- [ ] DICOM data anonymization
-- [ ] Support for more DICOM formats
-- [ ] Advanced visualization tools
-- [ ] Measurement tools
-- [ ] DICOM network protocol support
-- [ ] Plugin system for extensions
+- [ ] Fix remaining bugs with zoom/pan and window resizing
+- [ ] Stich 2D images into a 3D visualization
+- [ ] You choose..
 
 ## Support
-- Create an issue for bug reports or feature requests
-- Join our [Discord/Slack] community (coming soon)
-- Check out the [Wiki](https://github.com/yourusername/dicom-viewer/wiki) for detailed documentation
+- ¯\_(ツ)_/¯ 
 
 ## Citation
 If you use this software in your research, please cite it as:
 ```bibtex
 @software{dicom_viewer_go,
-  author = {Your Name},
+  author = {Kirill Zubovsky},
   title = {DICOM Viewer in Go},
-  year = {2024},
-  url = {https://github.com/yourusername/dicom-viewer}
+  year = {2025},
+  url = {https://github.com/kirillzubovsky/dicom-viewer}
 }
 ```
