@@ -1,5 +1,7 @@
 I fell while skiing and damanged my knee. Infuriated by the experience of reading my MRI results, I quickly built a DicomViewer with the help of Cursor and Grok. You can read about the experienec on [Novice.Media](https://novice.media). The app is not perfect, just like the rest of us. I hope that the next tech person that needs to see their MRI would be to use it, maybe fix bugs or contribute their features. Reach out on [X](https://x.com/kirillzubovsky) if you would like to talk about it.
 
+![DICOM Viewer Preview](public/dicom-viewer-preview.png)
+
 ---
 
 Below is a `README.md` file that encapsulates all the instructions, explanations, and usage details for the DICOM (Digital Imaging and Communications in Medicine) viewer script . This file includes everything someone would need to set up, run, and use the viewer for their own DICOM files, along with troubleshooting tips and potential next steps.
